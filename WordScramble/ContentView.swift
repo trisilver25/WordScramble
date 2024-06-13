@@ -93,6 +93,7 @@ struct ContentView: View {
     func startGame() {
         usedWords.removeAll()
         score = 0
+        newWord = ""
         
         if let startWordsURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
             if let startWords = try? String(contentsOf: startWordsURL) {
