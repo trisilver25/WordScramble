@@ -16,11 +16,14 @@ struct ContentView: View {
     @State private var errorMessage = ""
     @State private var showingError = false
     
+    @State private var score = 0
+    
     
     var body: some View {
         NavigationStack {
             List {
                 Section {
+                    Text("Score: \(score)")
                     TextField("Enter your word", text: $newWord)
                         .textInputAutocapitalization(.never)
                 }
@@ -42,13 +45,20 @@ struct ContentView: View {
             } message: {
                 Text(errorMessage)
             }
+            .toolbar {
+                Button("New Word"){
+                    startGame()
+                }
+            }
         }
     }
     
     func addNewWord() {
         let answer = newWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
-        guard answer.count > 0 else { return }
+        guard answer.count > 2 else {
+            wordError(title: "Too short!", message: "Words are 3 letters or longer")
+            return }
         
         guard isOriginal(word: answer) else {
             wordError(title: "Word used already", message: "Be more original!")
@@ -68,10 +78,22 @@ struct ContentView: View {
         withAnimation{
             usedWords.insert(answer, at: 0)
         }
+        
+        if answer.count > 6 {
+            score += 5
+        } else if answer.count > 4 {
+            score += 3
+        } else {
+            score += 1
+        }
+        
         newWord = ""
     }
     
     func startGame() {
+        usedWords.removeAll()
+        score = 0
+        
         if let startWordsURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
             if let startWords = try? String(contentsOf: startWordsURL) {
                 let allWords = startWords.components(separatedBy: "\n")
